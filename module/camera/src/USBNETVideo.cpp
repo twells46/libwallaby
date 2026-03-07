@@ -11,6 +11,8 @@
 #include <netinet/in.h>
 #include <netinet/tcp.h>
 
+#include <opencv2/core/utils/logger.hpp>
+
 #define DEST_PIXEL_FMT AV_PIX_FMT_BGR24
 #define AI_CAMERA_H 720
 #define AI_CAMERA_W 1280
@@ -33,15 +35,20 @@
 using namespace std;
 using namespace cv;
 
-#define VDTDEBUG 1
+//#define VDTDEBUG 1
 
-//char * UsbnetVideo::m_object_list;
+void hexDump(char *desc, void *addr, int len);
 
 UsbFrameProcessor::UsbFrameProcessor(
 	const char *drone_ip_address, const short unsigned int drone_port,
 	const int destw, const int desth)
 {
 	// todo: allow caller to set ip address
+
+/*DEBUG*/
+std::cout << cv::getBuildInformation() << std::endl;
+cv::utils::logging::setLogLevel(cv::utils::logging::LOG_LEVEL_VERBOSE);
+
 	m_udp_video_up = true;
 	m_vdr_running = false;
 
@@ -133,6 +140,7 @@ void UsbFrameProcessor::run_vdr()
 	clock_t last_cycle = clock();
 
 	while (true) {
+		size_t image_size;
 start_block:
 		if(!m_udp_video_up)
 			break;
@@ -151,8 +159,12 @@ start_block:
 		} while (recvMsgSize == PACK_SIZE);
 
 		int total_pack = ((int *) buffer)[0];
-		cout << "expected number of packets: " << total_pack << " HeaderSize " << recvMsgSize << endl;
-		char * longbuf = new char[PACK_SIZE * total_pack];
+
+		image_size = total_pack;
+		total_pack = 1 + (image_size - 1) / PACK_SIZE;
+
+		cout << "expected number of packets: " << total_pack << " HeaderSize " << recvMsgSize << " image_size " << image_size << endl;
+		char * longbuf = new char[total_pack * PACK_SIZE];
 		
 		char * object_list;
 		int object_count;
@@ -182,32 +194,31 @@ start_block:
 			free(longbuf);
 			goto start_block;   // somethings wrong - find next frame 
                 }
-		memcpy( & longbuf[i * PACK_SIZE], buffer, PACK_SIZE);
+		memcpy( & longbuf[i * PACK_SIZE], buffer, recvMsgSize);
 	}
 
 	cout << "run-vdt Received packet from " << sourceAddress << ":" << sourcePort << endl;
 
-	Mat rawData = Mat(1, PACK_SIZE * total_pack, CV_8UC1, longbuf);
-
-#ifdef VDTDEBUG
-/*DEBUG*/ cout << "run-vdt - rawData.size().width: " << rawData.size().width << endl;
-/*DEBUG*/ cout << "run-vdt rawData.rows: " << rawData.rows << " rawData.cols: " << rawData.cols << endl;
-#endif
 // dig out the codec signature string
 
 	size_t maxlen = 3;
-	Mat frame = imdecode(rawData, IMREAD_COLOR|IMREAD_ANYDEPTH|IMREAD_IGNORE_ORIENTATION);
+	Mat frame = imdecode(std::vector<uchar>(longbuf, longbuf+image_size), IMREAD_COLOR|IMREAD_ANYDEPTH|IMREAD_IGNORE_ORIENTATION);
+
+/*DEBUG*/ hexDump((char *)"longbuf", longbuf, 16);
 
 #ifdef VDTDEBUG
 /*DEBUG*/ cout << "run-vdt - frame.size().width: " << frame.size().width << endl;
 /*DEBUG*/ cout << "run-vdt - frame.depth(): " << frame.depth() << " frame.channels(): " << frame.channels() << endl;
 #endif
 
+        if(frame.data == NULL)
+        {
+                cerr << "decode error - frame data is null" << endl;
+                free(longbuf);
+                continue;
+        }
+
 	free(longbuf);
-	if (frame.size().width == 0) {
-		cerr << "decode failure!" << endl;
-		continue;
-	}
 
 	clock_t next_cycle = clock();
 	double duration = (next_cycle - last_cycle) / (double) CLOCKS_PER_SEC;
@@ -396,4 +407,53 @@ bool ai_camera_check()
 
 	free(returnBuffer);
 	return rtn;
+}
+
+
+/*DEBUG - Remove before production */
+
+void hexDump(char *desc, void *addr, int len) 
+{
+    int i;
+    unsigned char buff[17];
+    unsigned char *pc = (unsigned char*)addr;
+
+    // Output description if given.
+    if (desc != NULL)
+        printf ("%s:\n", desc);
+
+    // Process every byte in the data.
+    for (i = 0; i < len; i++) {
+        // Multiple of 16 means new line (with line offset).
+
+        if ((i % 16) == 0) {
+            // Just don't print ASCII for the zeroth line.
+            if (i != 0)
+                printf("  %s\n", buff);
+
+            // Output the offset.
+            printf("  %04x ", i);
+        }
+
+        // Now the hex code for the specific character.
+        printf(" %02x", pc[i]);
+
+        // And store a printable ASCII character for later.
+        if ((pc[i] < 0x20) || (pc[i] > 0x7e)) {
+            buff[i % 16] = '.';
+        } else {
+            buff[i % 16] = pc[i];
+        }
+
+        buff[(i % 16) + 1] = '\0';
+    }
+
+    // Pad out last line if not exactly 16 characters.
+    while ((i % 16) != 0) {
+        printf("   ");
+        i++;
+    }
+
+    // And print the final ASCII bit.
+    printf("  %s\n", buff);
 }
