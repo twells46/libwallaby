@@ -28,7 +28,6 @@
  *   - `with_motor` (default: `ON`) - Build motor support.
  *   - `with_network` (default: `ON`) - Build network support.
  *   - `with_servo` (default: `ON`) - Build servo support.
- *   - `with_tello` (default: `ON`) - Build Tello support.
  *   - `with_thread` (default: `ON`) - Build thread support.
  *   - `with_time` (default: `ON`) - Build time support.
  *   - `with_wait_for` (default: `ON`) - Build wait_for support.
@@ -55,7 +54,7 @@
  * ```
  * source emsdk/emsdk_env.sh
  * cd libkipr
- * emcmake cmake -Bbuild -Dwith_graphics=OFF -Dwith_camera=OFF -Dwith_tello=OFF -Dwith_python_binding=OFF .
+ * emcmake cmake -Bbuild -Dwith_graphics=OFF -Dwith_camera=OFF -Dwith_python_binding=OFF .
  * ```
  *
  * ## With Python Support
@@ -63,7 +62,7 @@
  * ```
  * source emsdk/emsdk_env.sh
  * cd libkipr
- * emcmake cmake -Bbuild -Dwith_graphics=OFF -Dwith_camera=OFF -Dwith_tello=OFF -DPYTHON_LIBRARY=$PYTHON_LIBRARY -DPYTHON_INCLUDE_DIR=$PYTHON_INCLUDE_DIR -Dwasm=ON .
+ * emcmake cmake -Bbuild -Dwith_graphics=OFF -Dwith_camera=OFF -DPYTHON_LIBRARY=$PYTHON_LIBRARY -DPYTHON_INCLUDE_DIR=$PYTHON_INCLUDE_DIR -Dwasm=ON .
  * ```
  * where:
  *   - `$PYTHON_LIBRARY` is the `libpythonVERSION.a` file that has been compiled to emscripten-browser.
