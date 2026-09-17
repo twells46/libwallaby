@@ -44,10 +44,6 @@
 %include "module/core/binding.i"
 #endif
 
-#ifdef KIPR_MODULE_CREATE
-%include "module/create/binding.i"
-#endif
-
 #ifdef KIPR_MODULE_DIGITAL
 %include "module/digital/binding.i"
 #endif

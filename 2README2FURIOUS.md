@@ -21,7 +21,6 @@ The Wombat is built on a Raspberry Pi 3b+ with a specially designed HAT that all
 - `with_camera`: Enable camera API, default `ON`
 - `with_compass`: Enable compass API, default `ON`
 - `with_console`: Enable console API, default `ON`
-- `with_create`: Enable Create API, default `ON`
 - `with_digital`: Enable digital API, default `ON`
 - `with_graphics`: Enable graphics API, default `ON`
 - `with_gyro`: Enable gyro API, default `ON`
