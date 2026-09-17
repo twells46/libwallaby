@@ -1,0 +1,20 @@
+FROM debian:13.6
+
+RUN apt update && apt install -y \
+    gcc \
+    wget \
+    cmake \
+    make \
+    build-essential \
+    binutils \
+    file \
+    git \
+    gnupg \
+    fish \
+    fzf \
+    ripgrep \
+    fd-find \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN groupadd --gid 1000 code \
+    && useradd --uid 1000 --gid 1000 --create-home --shell /bin/bash code
