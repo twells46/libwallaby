@@ -72,10 +72,6 @@
 %include "module/servo/binding.i"
 #endif
 
-#ifdef KIPR_MODULE_TELLO
-%include "module/tello/binding.i"
-#endif
-
 #ifdef KIPR_MODULE_TIME
 %include "module/time/binding.i"
 #endif

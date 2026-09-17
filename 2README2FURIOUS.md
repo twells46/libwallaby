@@ -28,7 +28,6 @@ The Wombat is built on a Raspberry Pi 3b+ with a specially designed HAT that all
 - `with_motor`: Enable motor API, default `ON`
 - `with_network`: Enable network API, default `ON`
 - `with_servo`: Enable servo API, default `ON`
-- `with_tello`: Enable tello API, default `ON`
 - `with_thread`: Enable thread/mutex API, default `ON`
 - `with_time`: Enable time API, default `ON`
 - `with_wait_for`: Enable wait_for API, default `ON`
