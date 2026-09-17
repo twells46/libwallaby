@@ -2,7 +2,7 @@ option(with_python_binding "Build python bindings" ON)
 
 if(with_python_binding)
   find_package(SWIG REQUIRED)
-  find_package(PythonLibs 3 REQUIRED)
+  find_package(Python3 REQUIRED COMPONENTS Development)
 
   set(KIPR_PYTHON_WRAPPER ${CMAKE_CURRENT_BINARY_DIR}/kipr_python.cpp)
 
@@ -33,9 +33,9 @@ if(with_python_binding)
   add_library(kipr_python SHARED ${KIPR_PYTHON_WRAPPER})
   add_dependencies(kipr_python swig_kipr_python ${KIPR_MODULES})
   if (NOT EMSCRIPTEN)
-    target_link_libraries(kipr_python PRIVATE ${PYTHON_LIBRARIES})
+    target_link_libraries(kipr_python PRIVATE Python3::Python)
   endif()
-  target_include_directories(kipr_python PRIVATE ${PYTHON_INCLUDE_DIRS})
+  target_link_libraries(kipr_python PRIVATE Python3::Module)
   
   # link library to kipr objects
   target_link_libraries(kipr_python PRIVATE ${KIPR_MODULES})

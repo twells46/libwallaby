@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.13)
 
 project(libkipr)
 
-option(package_debian "Build a Debian package" OFF)
+option(package_debian "Build a Debian package" ON)
 
 set(KIPR_VERSION_MAJOR 1)
 set(KIPR_VERSION_MINOR 2)
@@ -121,3 +121,15 @@ set(CPACK_PACKAGE_VERSION_MINOR ${KIPR_VERSION_MINOR})
 set(CPACK_PACKAGE_VERSION_PATCH ${KIPR_VERSION_PATCH})
 set(CPACK_DEBIAN_PACKAGE_ARCHITECTURE arm64)
 include(CPack)
+
+if(package_debian)
+  if(TARGET kipr_python)
+    add_dependencies(kipr kipr_python)
+  endif()
+  add_custom_command(TARGET kipr POST_BUILD
+    COMMAND ${CMAKE_CPACK_COMMAND}
+    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+    COMMENT "Generating Debian package with CPack"
+    VERBATIM
+  )
+endif()
