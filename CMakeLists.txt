@@ -120,6 +120,12 @@ set(CPACK_PACKAGE_VERSION_MAJOR ${KIPR_VERSION_MAJOR})
 set(CPACK_PACKAGE_VERSION_MINOR ${KIPR_VERSION_MINOR})
 set(CPACK_PACKAGE_VERSION_PATCH ${KIPR_VERSION_PATCH})
 set(CPACK_DEBIAN_PACKAGE_ARCHITECTURE arm64)
+# TODO Verify this list against what the package actually links. It omits
+# libstdc++6, libgcc-s1 and libpython3.13 (needed by _kipr.so), plus any
+# runtime libraries the bundled OpenCV picks up (see
+# module/camera/dependencies/opencv/CMakeLists.txt). Check with
+# `aarch64-linux-gnu-readelf -d` on the installed libraries, or consider
+# CPACK_DEBIAN_PACKAGE_SHLIBDEPS.
 set(CPACK_DEBIAN_PACKAGE_DEPENDS "libx11-6, zlib1g, libc6")
 include(CPack)
 

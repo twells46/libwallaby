@@ -4,6 +4,12 @@ set(OPENCV_DIR ${CMAKE_CURRENT_BINARY_DIR}/dep_opencv)
 set(OPENCV_LIB_DIR ${OPENCV_DIR}/lib)
 set(OPENCV_INCLUDE_DIR ${OPENCV_DIR}/include)
 
+# TODO PNG, TIFF and OpenJPEG support is enabled below, but the build
+# container has no arm64 -dev packages for them. OpenCV then falls back to
+# its bundled copies, or links whatever system copy it finds, so the
+# result depends on the build environment. Pin this with BUILD_PNG,
+# BUILD_TIFF and BUILD_OPENJPEG, or install the -dev:arm64 packages and add
+# the runtime packages to CPACK_DEBIAN_PACKAGE_DEPENDS.
 ExternalProject_Add(dep_opencv
   URL https://github.com/opencv/opencv/archive/refs/tags/4.6.0.tar.gz
   CMAKE_ARGS
@@ -154,4 +160,8 @@ add_library(opencv_imgcodecs_wrapper INTERFACE)
 target_link_libraries(opencv_imgcodecs_wrapper INTERFACE opencv opencv_imgcodecs)
 
 # Install compiled opencv libs as required by AI Camera update
+# TODO This installs the whole lib directory, including pkgconfig and cmake
+# files and the unversioned .so symlinks, which may clash with Debian's
+# libopencv-dev if that is installed on the controller. Install only the
+# versioned shared libraries.
 install(DIRECTORY ${OPENCV_LIB_DIR}/ TYPE LIB)
