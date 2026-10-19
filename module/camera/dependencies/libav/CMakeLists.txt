@@ -34,7 +34,6 @@ if (CMAKE_CROSSCOMPILING)
       --cross-prefix=${CROSS_PREFIX}
       --target-os=${TARGET_OS}
       --arch=${ARCH}
-      --sysroot=${CMAKE_SYSROOT}
     INSTALL_COMMAND make install
   )
 else()

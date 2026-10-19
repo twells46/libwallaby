@@ -2,4 +2,3 @@ build
 .vscode/
 documentation/html
 documentation/man
-container/sysroot/
