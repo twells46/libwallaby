@@ -83,6 +83,100 @@ sudo apt install gcc-aarch64-linux-gnu g++-aarch64-linux-gnu
 cmake -Bbuild -DCMAKE_TOOLCHAIN_FILE=toolchain/aarch64-linux-gnu.cmake .
 ```
 
+## AI Camera
+
+The AI camera is a Raspberry Pi Zero that connects to the Wombat over USB and talks to it using IP over USB.
+`libwallaby` detects it automatically when a camera is opened.
+
+### Prebuilt testing builds
+
+To test without building, flash your Wombat with the [AI camera testing image](https://files.kipr.org/wombat/Wombat_v32.0.0-aicam_beta_20251119.img.gz), or install the [prebuilt `.deb`](https://files.kipr.org/devel/kipr-1.2.2-Linux.deb).
+Both were built on 2025-11-19 and do not include later changes.
+For newer changes, follow [Building](#building), which produces a `.deb` in the `build` directory.
+
+### Installation
+
+First, plug the Pi Zero into the Wombat, then SSH into the Wombat and create the necessary connection:
+
+```sh
+sudo nmcli connection add type ethernet con-name ai-camera-link ifname usb0 ipv4.addresses 192.168.1.1/24 ipv4.method manual ipv6.method auto ipv6.addresses "fe80::c3ed:d6c2:1e76:cebe/64" ipv6.routes "fe80::/64 :: 101"
+```
+
+The connection should come up quickly (under 30 seconds).
+You can verify it by SSHing from the Wombat to the Pi Zero:
+
+```sh
+ssh kipr@192.168.1.2
+```
+
+The Wombat will be rebooted later, so you may wish to power off the Pi Zero now to avoid potential disk corruption:
+
+```sh
+sudo poweroff
+```
+
+Now install the new version of `libwallaby`:
+
+1. Copy the `.deb` file to the Wombat:
+
+   ```sh
+   scp kipr-<ver>-Linux.deb kipr@<wombat_ip>:~
+   ```
+
+2. SSH into the Wombat and install it:
+
+   ```sh
+   sudo apt install ./kipr-<ver>-Linux.deb
+   ```
+
+3. Reboot:
+
+   ```sh
+   sudo reboot
+   ```
+
+### Channel data
+
+Objects found by the AI camera are delivered through a blob tracking channel, which can be configured through BotUI → Settings → Channels.
+The channel is currently configured using "QR code scanner"; a future release will use a more appropriate name.
+
+The fields of the channel object structure are used as follows:
+
+- `m_centroid` - centroid
+- `m_bounding_box` - bounding box
+- `m_confidence` - confidence
+- `m_data` - string from the model that indicates the object type
+- `m_length` - length of that string
+
+In short, objects look the same as blob tracking objects and are accessed through the existing functions.
+
+Downloading AI models from the Wombat is not yet supported.
+
+### Debugging with systemd
+
+`botui` on the Wombat runs as a systemd unit.
+You can follow a unit's logs with:
+
+```sh
+sudo journalctl -b -f -u <service-name>.service
+```
+
+So, for `botui`:
+
+```sh
+sudo journalctl -b -f -u botui.service
+```
+
+Flags:
+
+- `-b`: Only show logs from the current boot.
+- `-f`: Emulates `tail -f` with a continuous stream.
+- `-u UNIT`: Only view logs for `UNIT`, rather than everything systemd is tracking.
+
+See `man journalctl` for more info.
+You can also list everything systemd is currently tracking by running `systemctl`.
+Generally the entries suffixed with `.service` are the most pertinent.
+
 ## License
 
 libkipr is licensed under the terms of the [GPLv3 License](LICENSE).
