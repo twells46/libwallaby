@@ -31,7 +31,6 @@
 #cmakedefine KIPR_MODULE_NETWORK
 #cmakedefine KIPR_MODULE_SENSOR
 #cmakedefine KIPR_MODULE_SERVO
-#cmakedefine KIPR_MODULE_TELLO
 #cmakedefine KIPR_MODULE_THREAD
 #cmakedefine KIPR_MODULE_TIME
 #cmakedefine KIPR_MODULE_WAIT_FOR

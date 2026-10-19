@@ -85,17 +85,17 @@ enum Resolution
   LOW_RES,
   MED_RES,
   HIGH_RES,
-  TELLO_RES,
-  AI_CAMERA_RES,
-  NATIVE_RES
+  // Values are fixed to stay ABI compatible with older releases
+  AI_CAMERA_RES = 4,
+  NATIVE_RES = 5
 };
 
 enum Model
 {
   WHITE_2016,
   BLACK_2017,
-  TELLO,
-  AI_CAMERA
+  // Value is fixed to stay ABI compatible with older releases
+  AI_CAMERA = 3
 };
 
 /**
@@ -125,7 +125,6 @@ int camera_open_black();
  *   - LOW_RES (160x120)
  *   - MED_RES (320x240)
  *   - HIGH_RES (640x480)
- *   - TELLO_RES (1280x720)
  *   - AI_CAMERS_RES (1280x720)
  * \warning Only LOW_RES is currently supported. The function will fail for other resolutions.
  * \return 1 on success, 0 on failure
@@ -143,7 +142,6 @@ int camera_open_at_res(enum Resolution res);
  *   - LOW_RES (160x120)
  *   - MED_RES (320x240)
  *   - HIGH_RES (640x480)
- *   - TELLO_RES (1280x720)
  * \warning Only LOW_RES is currently supported. The function will fail for other resolutions.
  * \return 1 on success, 0 on failure
  * \see camera_open
@@ -159,11 +157,9 @@ int camera_open_device(int number, enum Resolution res);
  *   - LOW_RES (160x120)
  *   - MED_RES (320x240)
  *   - HIGH_RES (640x480)
- *   - TELLO_RES (1280x720)
  * \param model The camera model
  *   - WHITE_2016  The white 2016 Botball camera
  *   - BLACK_2017  The black 2017 Botball camera
- *   - TELLO       Tello drone camera
  * \warning MED_RES is supported only for the BLACK_2017 camera and HIGH_RES is not supported
  * \return 1 on success, 0 on failure
  * \see camera_open

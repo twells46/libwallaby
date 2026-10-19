@@ -1,5 +1,4 @@
 #include "kipr/camera/camera.hpp"
-#include "UDPVideo.hpp"
 #include "USBNETVideo.hpp"
 #include "channel_p.hpp"
 #include "kipr/camera/camera.h"
@@ -159,9 +158,7 @@ const char *Device::device_name = "/dev/video0";
 Device::Device()
     : m_connected(false), m_bgr(0), m_bgrSize(0), m_fd(-1), m_cap(0),
       m_impl(new DeviceImpl), m_resolution(HIGH_RES /*LOW_RES*/),
-#ifdef BOTUI_TELLO_TEST
-      m_model(TELLO)
-#elseif BOTUI_AI_CAMERA_TEST
+#ifdef BOTUI_AI_CAMERA_TEST
       m_model(AI_CAMERA)
 #else
       m_model(/*WHITE_2016*/ BLACK_2017)
@@ -258,20 +255,6 @@ bool Device::open(const int number, Resolution resolution, Model model)
     }
     m_connected = true;
   }
-  else if (m_model == TELLO)
-  {
-    m_resolution = TELLO_RES;
-    m_cap = new UdpVideo("0.0.0.0", 11111, resolutionToWidth(m_resolution),
-                         resolutionToHeight(m_resolution));
-    if (!m_cap->isOpened())
-    {
-      fprintf(stderr, "Failed to open Tello camera (UDP)");
-      delete m_cap;
-      m_cap = nullptr;
-      return false;
-    }
-    m_connected = true;
-  }
   else if (m_model == AI_CAMERA)
   {
     m_resolution = AI_CAMERA_RES;
@@ -302,8 +285,6 @@ unsigned int Device::resolutionToHeight(Resolution res)
   case HIGH_RES:
   case AI_CAMERA_RES:
     return 480;
-  case TELLO_RES:
-    return 720;
   }
 
   return 0;
@@ -320,8 +301,6 @@ unsigned int Device::resolutionToWidth(Resolution res)
   case HIGH_RES:
   case AI_CAMERA_RES:
     return 640;
-  case TELLO_RES:
-    return 1280;
   }
 
   return 0;
@@ -360,7 +339,7 @@ bool Device::close()
 
     m_fd = -1;
   }
-  else if ((m_model == BLACK_2017) || (m_model == TELLO) || (m_model == AI_CAMERA))
+  else if ((m_model == BLACK_2017) || (m_model == AI_CAMERA))
   {
     /*debug*/ printf("closing camera\n");
     delete m_cap; // test to fix
@@ -444,7 +423,7 @@ bool Device::update()
       }
     }
   }
-  else if ((m_model == BLACK_2017) || (m_model == TELLO) || (m_model == AI_CAMERA))
+  else if ((m_model == BLACK_2017) || (m_model == AI_CAMERA))
   {
     const int readRes = this->readFrame();
     if (readRes < 0)
@@ -779,14 +758,11 @@ int Device::readFrame()
     }
     return 1;
   }
-  else if ((m_model == BLACK_2017) || (m_model == TELLO) || (m_model == AI_CAMERA))
+  else if ((m_model == BLACK_2017) || (m_model == AI_CAMERA))
   {
     if (!m_connected)
     {
       printf("camera not connected\n");
-      // if(m_model != TELLO)
-      //	open(0, LOW_RES, BLACK_2017); // TODO real numbers, we don't use
-      // these yet
       return -1;
     }
 
